@@ -69,22 +69,34 @@ void loadStudentsFromFile(Student **students, int *count) {
     fclose(file);
 }
 
-// Function to search for a student by name and roll number
-void searchStudent(Student *students, int count) {
+// Function to search for a student by name
+void searchStudentByName(Student *students, int count) {
     char name[50];
-    int rollNumber;
     printf("Enter student name to search: ");
     scanf("%49s", name);
-    printf("Enter roll number to search: ");
-    scanf("%d", &rollNumber);
 
     for (int i = 0; i < count; i++) {
-        if (strcmp(students[i].name, name) == 0 && students[i].rollNumber == rollNumber) {
+        if (strcmp(students[i].name, name) == 0) {
             displayStudentResult(&students[i]);
             return;
         }
     }
-    printf("Student with name %s and roll number %d not found.\n", name, rollNumber);
+    printf("Student with name %s not found.\n", name);
+}
+
+// Function to search for a student by roll number
+void searchStudentByRollNumber(Student *students, int count) {
+    int rollNumber;
+    printf("Enter roll number to search: ");
+    scanf("%d", &rollNumber);
+
+    for (int i = 0; i < count; i++) {
+        if (students[i].rollNumber == rollNumber) {
+            displayStudentResult(&students[i]);
+            return;
+        }
+    }
+    printf("Student with roll number %d not found.\n", rollNumber);
 }
 
 // Function to calculate the average marks
@@ -122,17 +134,14 @@ void sortStudentsByMarks(Student *students, int count, int order) {
     }
 }
 
-// Function to delete a student by name and roll number
-void deleteStudent(Student **students, int *count) {
+// Function to delete a student by name
+void deleteStudentByName(Student **students, int *count) {
     char name[50];
-    int rollNumber;
     printf("Enter student name to delete: ");
     scanf("%49s", name);
-    printf("Enter roll number to delete: ");
-    scanf("%d", &rollNumber);
 
     for (int i = 0; i < *count; i++) {
-        if (strcmp((*students)[i].name, name) == 0 && (*students)[i].rollNumber == rollNumber) {
+        if (strcmp((*students)[i].name, name) == 0) {
             // Shift remaining students to fill the gap
             for (int j = i; j < *count - 1; j++) {
                 (*students)[j] = (*students)[j + 1];
@@ -144,11 +153,37 @@ void deleteStudent(Student **students, int *count) {
                 exit(1);
             }
             (*count)--;
-            printf("Student with name %s and roll number %d deleted.\n", name, rollNumber);
+            printf("Student with name %s deleted.\n", name);
             return;
         }
     }
-    printf("Student with name %s and roll number %d not found.\n", name, rollNumber);
+    printf("Student with name %s not found.\n", name);
+}
+
+// Function to delete a student by roll number
+void deleteStudentByRollNumber(Student **students, int *count) {
+    int rollNumber;
+    printf("Enter roll number to delete: ");
+    scanf("%d", &rollNumber);
+
+    for (int i = 0; i < *count; i++) {
+        if ((*students)[i].rollNumber == rollNumber) {
+            // Shift remaining students to fill the gap
+            for (int j = i; j < *count - 1; j++) {
+                (*students)[j] = (*students)[j + 1];
+            }
+            // Resize the memory block
+            *students = realloc(*students, (*count - 1) * sizeof(Student));
+            if (*students == NULL && *count > 1) {
+                printf("Memory allocation failed!\n");
+                exit(1);
+            }
+            (*count)--;
+            printf("Student with roll number %d deleted.\n", rollNumber);
+            return;
+        }
+    }
+    printf("Student with roll number %d not found.\n", rollNumber);
 }
 
 // Function to manage student records
@@ -160,7 +195,7 @@ void manageStudents() {
     loadStudentsFromFile(&students, &count);
 
     do {
-        printf("1. Add Student\n2. Display Students\n3. Search Student by Name and Roll Number\n4. Calculate Average Marks\n5. Sort Students by Marks\n6. Delete Student by Name and Roll Number\n7. Save and Exit\n");
+        printf("1. Add Student\n2. Display Students\n3. Search Student by Name\n4. Search Student by Roll Number\n5. Calculate Average Marks\n6. Sort Students by Marks\n7. Delete Student by Name\n8. Delete Student by Roll Number\n9. Save and Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
@@ -180,28 +215,34 @@ void manageStudents() {
                 }
                 break;
             case 3:
-                searchStudent(students, count);
+                searchStudentByName(students, count);
                 break;
             case 4:
-                calculateAverageMarks(students, count);
+                searchStudentByRollNumber(students, count);
                 break;
             case 5:
+                calculateAverageMarks(students, count);
+                break;
+            case 6:
                 printf("Enter 1 for ascending order or 2 for descending order: ");
                 int order;
                 scanf("%d", &order);
                 sortStudentsByMarks(students, count, order);
                 break;
-            case 6:
-                deleteStudent(&students, &count);
-                break;
             case 7:
+                deleteStudentByName(&students, &count);
+                break;
+            case 8:
+                deleteStudentByRollNumber(&students, &count);
+                break;
+            case 9:
                 saveStudentsToFile(students, count);
                 printf("Students saved. Exiting...\n");
                 break;
             default:
                 printf("Invalid choice! Please try again.\n");
         }
-    } while (choice != 7);
+    } while (choice != 9);
 
     free(students);
 }
