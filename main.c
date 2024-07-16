@@ -31,6 +31,26 @@ void inputStudentMarks(Student *student) {
     getchar();  // Consume leftover newline character
 }
 
+// Function to input multiple students
+void inputMultipleStudents(Student **students, int *count) {
+    int numStudents;
+    printf("Enter the number of students to add: ");
+    scanf("%d", &numStudents);
+    getchar();  // Consume leftover newline character
+
+    *students = realloc(*students, (*count + numStudents) * sizeof(Student));
+    if (*students == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < numStudents; i++) {
+        printf("Entering details for student %d:\n", *count + 1);
+        inputStudentMarks(&(*students)[*count]);
+        (*count)++;
+    }
+}
+
 // Function to display student result
 void displayStudentResult(const Student *student) {
     printf("Name: %s, Roll Number: %d, Marks: %.2f - %s\n",
@@ -206,7 +226,7 @@ void manageStudents() {
     loadStudentsFromFile(&students, &count);
 
     do {
-        printf("1. Add Student\n2. Display Students\n3. Search Student by Name\n4. Search Student by Roll Number\n5. Calculate Average Marks\n6. Sort Students by Marks\n7. Delete Student by Name\n8. Delete Student by Roll Number\n9. Save and Exit\n");
+        printf("1. Add Student\n2. Add Multiple Students\n3. Display Students\n4. Search Student by Name\n5. Search Student by Roll Number\n6. Calculate Average Marks\n7. Sort Students by Marks\n8. Delete Student by Name\n9. Delete Student by Roll Number\n10. Save and Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
         getchar();  // Consume leftover newline
@@ -222,41 +242,43 @@ void manageStudents() {
                 count++;
                 break;
             case 2:
+                inputMultipleStudents(&students, &count);
+                break;
+            case 3:
                 for (int i = 0; i < count; i++) {
                     displayStudentResult(&students[i]);
                 }
                 break;
-            case 3:
+            case 4:
                 searchStudentByName(students, count);
                 break;
-            case 4:
+            case 5:
                 searchStudentByRollNumber(students, count);
                 break;
-            case 5:
+            case 6:
                 calculateAverageMarks(students, count);
                 break;
-            case 6:
+            case 7:
                 printf("Enter 1 for ascending order or 2 for descending order: ");
                 int order;
                 scanf("%d", &order);
-                getchar(); 
-                // Consume leftover newline
+                getchar();  // Consume leftover newline
                 sortStudentsByMarks(students, count, order);
                 break;
-            case 7:
+            case 8:
                 deleteStudentByName(&students, &count);
                 break;
-            case 8:
+            case 9:
                 deleteStudentByRollNumber(&students, &count);
                 break;
-            case 9:
+            case 10:
                 saveStudentsToFile(students, count);
                 printf("Students saved. Exiting...\n");
                 break;
             default:
                 printf("Invalid choice! Please try again.\n");
         }
-    } while (choice != 9);
+    } while (choice != 10);
 
     free(students);
 }
@@ -266,3 +288,4 @@ int main() {
     manageStudents();
     return 0;
 }
+
