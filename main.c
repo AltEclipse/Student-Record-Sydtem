@@ -52,7 +52,8 @@ void saveStudentsToFile(Student *students, int count) {
 void loadStudentsFromFile(Student **students, int *count) {
     FILE *file = fopen("students.txt", "r");
     if (file == NULL) {
-        printf("Error opening file for reading!\n");
+        // If the file does not exist, initialize count to 0 and return
+        *count = 0;
         return;
     }
     *count = 0;
