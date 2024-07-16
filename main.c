@@ -14,18 +14,21 @@ void greetUser() {
     char name[50];
     printf("Welcome to the Student Record System!\n");
     printf("Please enter your name: ");
-    scanf("%49s", name);  // Limit input to avoid buffer overflow
+    fgets(name, sizeof(name), stdin);  // Use fgets for better input handling
+    name[strcspn(name, "\n")] = '\0';  // Remove trailing newline
     printf("Hello, %s!\n", name);
 }
 
 // Function to input student marks
 void inputStudentMarks(Student *student) {
     printf("Enter student name: ");
-    scanf("%49s", student->name);
+    fgets(student->name, sizeof(student->name), stdin);  // Use fgets for better input handling
+    student->name[strcspn(student->name, "\n")] = '\0';  // Remove trailing newline
     printf("Enter roll number: ");
     scanf("%d", &student->rollNumber);
     printf("Enter marks: ");
     scanf("%f", &student->marks);
+    getchar();  // Consume leftover newline character
 }
 
 // Function to display student result
@@ -43,7 +46,7 @@ void saveStudentsToFile(Student *students, int count) {
         return;
     }
     for (int i = 0; i < count; i++) {
-        fprintf(file, "%s %d %.2f\n", students[i].name, students[i].rollNumber, students[i].marks);
+        fprintf(file, "%s\n%d\n%.2f\n", students[i].name, students[i].rollNumber, students[i].marks);
     }
     fclose(file);
 }
@@ -57,13 +60,17 @@ void loadStudentsFromFile(Student **students, int *count) {
         return;
     }
     *count = 0;
-    while (!feof(file)) {
+    char buffer[50];
+    while (fgets(buffer, sizeof(buffer), file)) {
         *students = realloc(*students, (*count + 1) * sizeof(Student));
         if (*students == NULL) {
             printf("Memory allocation failed!\n");
             exit(1);
         }
-        fscanf(file, "%49s %d %f", (*students)[*count].name, &(*students)[*count].rollNumber, &(*students)[*count].marks);
+        buffer[strcspn(buffer, "\n")] = '\0';  // Remove trailing newline
+        strcpy((*students)[*count].name, buffer);
+        fscanf(file, "%d\n%f\n", &(*students)[*count].rollNumber, &(*students)[*count].marks);
+        fgets(buffer, sizeof(buffer), file);  // Consume the leftover newline
         (*count)++;
     }
     fclose(file);
@@ -73,7 +80,8 @@ void loadStudentsFromFile(Student **students, int *count) {
 void searchStudentByName(Student *students, int count) {
     char name[50];
     printf("Enter student name to search: ");
-    scanf("%49s", name);
+    fgets(name, sizeof(name), stdin);
+    name[strcspn(name, "\n")] = '\0';  // Remove trailing newline
 
     for (int i = 0; i < count; i++) {
         if (strcmp(students[i].name, name) == 0) {
@@ -89,6 +97,7 @@ void searchStudentByRollNumber(Student *students, int count) {
     int rollNumber;
     printf("Enter roll number to search: ");
     scanf("%d", &rollNumber);
+    getchar();  // Consume leftover newline
 
     for (int i = 0; i < count; i++) {
         if (students[i].rollNumber == rollNumber) {
@@ -138,7 +147,8 @@ void sortStudentsByMarks(Student *students, int count, int order) {
 void deleteStudentByName(Student **students, int *count) {
     char name[50];
     printf("Enter student name to delete: ");
-    scanf("%49s", name);
+    fgets(name, sizeof(name), stdin);
+    name[strcspn(name, "\n")] = '\0';  // Remove trailing newline
 
     for (int i = 0; i < *count; i++) {
         if (strcmp((*students)[i].name, name) == 0) {
@@ -165,6 +175,7 @@ void deleteStudentByRollNumber(Student **students, int *count) {
     int rollNumber;
     printf("Enter roll number to delete: ");
     scanf("%d", &rollNumber);
+    getchar();  // Consume leftover newline
 
     for (int i = 0; i < *count; i++) {
         if ((*students)[i].rollNumber == rollNumber) {
@@ -198,6 +209,7 @@ void manageStudents() {
         printf("1. Add Student\n2. Display Students\n3. Search Student by Name\n4. Search Student by Roll Number\n5. Calculate Average Marks\n6. Sort Students by Marks\n7. Delete Student by Name\n8. Delete Student by Roll Number\n9. Save and Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        getchar();  // Consume leftover newline
 
         switch (choice) {
             case 1:
@@ -227,6 +239,8 @@ void manageStudents() {
                 printf("Enter 1 for ascending order or 2 for descending order: ");
                 int order;
                 scanf("%d", &order);
+                getchar(); 
+                // Consume leftover newline
                 sortStudentsByMarks(students, count, order);
                 break;
             case 7:
