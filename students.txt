@@ -1,3 +1,12 @@
 precious gabriel
 30
 40.00
+precious
+33
+33.00
+dunce
+44
+36.00
+gibbs
+22
+111.00
